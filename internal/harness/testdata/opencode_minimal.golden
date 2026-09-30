@@ -1,0 +1,42 @@
+{
+  "argv": [
+    "opencode",
+    "run",
+    "--auto",
+    "--format",
+    "json",
+    "--",
+    "fix it"
+  ],
+  "config": {
+    "$schema": "https://opencode.ai/config.json",
+    "agent": {
+      "explore": {
+        "disable": true
+      },
+      "general": {
+        "disable": true
+      },
+      "plan": {
+        "disable": true
+      }
+    },
+    "autoupdate": false,
+    "permission": {
+      "bash": "allow",
+      "doom_loop": "allow",
+      "edit": "allow",
+      "external_directory": "allow",
+      "webfetch": "allow"
+    }
+  },
+  "copies": null,
+  "env": [
+    "OPENCODE_CONFIG_DIR=/cfg/repo-1234/20260929-120000-abcd/opencode",
+    "OPENCODE_DISABLE_AUTOUPDATE=1",
+    "OPENCODE_DISABLE_CLAUDE_CODE=1",
+    "OPENCODE_DISABLE_EXTERNAL_SKILLS=1",
+    "OPENCODE_DISABLE_PROJECT_CONFIG=1"
+  ],
+  "files": null
+}

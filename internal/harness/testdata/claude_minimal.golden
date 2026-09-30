@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "claude",
+    "-p",
+    "--dangerously-skip-permissions",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    "--setting-sources",
+    "user",
+    "--strict-mcp-config",
+    "--disable-slash-commands"
+  ],
+  "env": [
+    "CLAUDE_CODE_DISABLE_AUTO_MEMORY=1",
+    "CLAUDE_CODE_DISABLE_BUNDLED_SKILLS=1",
+    "CLAUDE_CODE_DISABLE_CLAUDE_MDS=1",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1",
+    "CLAUDE_CONFIG_DIR=/cfg/repo-1234/20260929-120000-abcd/claude",
+    "DISABLE_AUTOUPDATER=1"
+  ],
+  "stdin": "/cfg/repo-1234/20260929-120000-abcd/bundle/prompt.md",
+  "files": [
+    {
+      "path": "/cfg/repo-1234/20260929-120000-abcd/claude/settings.json",
+      "data": "{\"skipDangerousModePermissionPrompt\":true}\n"
+    },
+    {
+      "path": "/cfg/repo-1234/20260929-120000-abcd/claude/.claude.json",
+      "data": "{\"hasCompletedOnboarding\":true,\"bypassPermissionsModeAccepted\":true}\n"
+    }
+  ]
+}

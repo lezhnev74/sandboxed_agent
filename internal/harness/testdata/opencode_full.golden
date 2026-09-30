@@ -1,0 +1,103 @@
+{
+  "argv": [
+    "opencode",
+    "run",
+    "-m",
+    "openrouter/qwen/qwen3-coder",
+    "--variant",
+    "high",
+    "--auto",
+    "--format",
+    "json",
+    "--title",
+    "x",
+    "--",
+    "-starts with a dash"
+  ],
+  "config": {
+    "$schema": "https://opencode.ai/config.json",
+    "agent": {
+      "explore": {
+        "disable": true
+      },
+      "general": {
+        "disable": true
+      },
+      "plain": {
+        "description": "plain",
+        "mode": "subagent",
+        "prompt": "Just a body."
+      },
+      "plan": {
+        "disable": true
+      },
+      "reviewer": {
+        "description": "Reviews diffs",
+        "mode": "subagent",
+        "prompt": "Review the diff."
+      }
+    },
+    "autoupdate": false,
+    "instructions": [
+      "/cfg/repo-1234/20260929-120000-abcd/bundle/system.md"
+    ],
+    "mcp": {
+      "mem": {
+        "command": [
+          "npx",
+          "-y",
+          "@mcp/memory"
+        ],
+        "environment": {
+          "K": "v"
+        },
+        "type": "local"
+      },
+      "old": {
+        "type": "remote",
+        "url": "https://mcp.example/sse"
+      },
+      "plain": {
+        "command": [
+          "srv"
+        ],
+        "type": "local"
+      },
+      "web": {
+        "headers": {
+          "Authorization": "Bearer x"
+        },
+        "type": "remote",
+        "url": "https://mcp.example/mcp"
+      }
+    },
+    "permission": {
+      "bash": "allow",
+      "doom_loop": "allow",
+      "edit": "allow",
+      "external_directory": "allow",
+      "webfetch": "allow"
+    },
+    "provider": {
+      "openrouter": {
+        "options": {
+          "baseURL": "https://openrouter.ai/api/v1"
+        }
+      }
+    }
+  },
+  "copies": [
+    {
+      "from": "/cfg/repo-1234/20260929-120000-abcd/bundle/skills",
+      "to": "/cfg/repo-1234/20260929-120000-abcd/opencode/skills"
+    }
+  ],
+  "env": [
+    "OPENCODE_CONFIG_DIR=/cfg/repo-1234/20260929-120000-abcd/opencode",
+    "OPENCODE_DISABLE_AUTOUPDATE=1",
+    "OPENCODE_DISABLE_CLAUDE_CODE=1",
+    "OPENCODE_DISABLE_EXTERNAL_SKILLS=1",
+    "OPENCODE_DISABLE_PROJECT_CONFIG=1"
+  ],
+  "files": null
+}

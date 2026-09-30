@@ -1,0 +1,16 @@
+# Thresholds enforced by `go tool go-test-coverage` (gate 7 of `make check`).
+# Guarded by tools/gatesum: never lower a threshold in a feature change.
+profile: coverage.out
+
+threshold:
+  file: 60
+  package: 75
+  total: 80
+
+# Excluded by pattern, never by hand-kept lists:
+#   - ^cmd/       the composition root; what it wires must stay thin.
+#   - _exec.go$   the only files that exec; covered by `make itest`.
+exclude:
+  paths:
+    - ^cmd/
+    - _exec\.go$

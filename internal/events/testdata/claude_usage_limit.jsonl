@@ -1,0 +1,4 @@
+{"type":"system","subtype":"init","model":"claude-haiku-4-5","claude_code_version":"2.1.284","session_id":"s1"}
+{"type":"rate_limit_event","rate_limit_info":{"status":"rejected","resetsAt":1790701200,"rateLimitType":"five_hour","overageStatus":"rejected","isUsingOverage":false},"session_id":"s1"}
+{"type":"assistant","message":{"model":"<synthetic>","role":"assistant","content":[{"type":"text","text":"You've hit your limit · resets 3pm (UTC)"}],"usage":{"input_tokens":0,"output_tokens":0}},"error":"rate_limit","session_id":"s1"}
+{"type":"result","subtype":"success","is_error":true,"api_error_status":429,"num_turns":1,"result":"You've hit your limit · resets 3pm (UTC)","total_cost_usd":0,"usage":{"input_tokens":0,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":0},"session_id":"s1"}

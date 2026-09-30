@@ -1,0 +1,27 @@
+#!/bin/sh
+# sandboxed_agent-idle TIMEOUT POLL [HEARTBEAT]: the box's main process (under
+# --init). It exits, and so stops the box, once no process has been exec'd
+# into the box for TIMEOUT seconds; it looks every POLL seconds. An exec'd
+# process (a harness, a shell) has parent pid 0 in the box, like pid 1
+# itself, so more than one such process means busy. With HEARTBEAT (a file in
+# the volume shared with the dind sidecar) it rewrites the file every poll;
+# the sidecar stops once the file goes stale.
+set -u
+timeout=${1:-3600}
+poll=${2:-10}
+beat=${3:-}
+idle=0
+trap 'exit 0' TERM INT HUP
+alive() { [ -z "$beat" ] || echo alive > "$beat" 2>/dev/null || true; }
+alive
+while [ "$idle" -lt "$timeout" ]; do
+  sleep "$poll" &
+  wait $!
+  alive
+  if [ "$(ps -e -o ppid= | grep -cx ' *0')" -gt 1 ]; then
+    idle=0
+  else
+    idle=$((idle + poll))
+  fi
+done
+echo "sandboxed_agent-idle: no exec'd process for ${timeout}s, stopping the box"

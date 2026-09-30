@@ -1,0 +1,241 @@
+# Guarded by tools/gatesum: an edit fails `make check` until a human runs
+# `make gates-bless`. See docs/quality-gates.md for why each rule exists.
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  default: standard # errcheck, govet, ineffassign, staticcheck, unused
+  enable:
+    - bodyclose
+    - depguard
+    - dupl
+    - err113
+    - errorlint
+    - exhaustive
+    - forbidigo
+    - funlen
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godot
+    - gosec
+    - misspell
+    - nakedret
+    - nilerr
+    - nolintlint
+    - prealloc
+    - revive
+    - testifylint
+    - unconvert
+    - unparam
+    - wrapcheck
+  # paralleltest stays off: parallel tests make output order vary and don't
+  # speed up a suite this size.
+
+  settings:
+    gocyclo:
+      # Kept equal to the CRAP threshold in tools/crap: since CRAP is never
+      # lower than the complexity, the two gates would otherwise disagree.
+      min-complexity: 7
+    gocognit:
+      min-complexity: 20
+    funlen:
+      lines: 60
+      statements: 40
+    dupl:
+      threshold: 120
+    wrapcheck:
+      ignore-sigs:
+        - .Errorf(
+        - errors.New(
+        - errors.Unwrap(
+        - errors.Join(
+        # Returned verbatim so callers can errors.Is it.
+        - (context.Context).Err(
+    govet:
+      enable-all: true
+      disable:
+        - fieldalignment
+    revive:
+      rules:
+        - name: exported
+        - name: package-comments
+        - name: unexported-return
+        - name: indent-error-flow
+        - name: errorf
+        - name: context-as-argument
+        - name: early-return
+
+    # Every exemption names its linter and says why.
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+      allow-unused: false
+
+    # Adding an outcome kind, stop reason or exit code breaks every switch
+    # that forgot it.
+    exhaustive:
+      default-signifies-exhaustive: false
+
+    # What makes unit tests hermetic. Exemptions live under
+    # exclusions.rules below, one per file set, with a reason.
+    forbidigo:
+      forbid:
+        - pattern: ^time\.(Now|Since|Until|Sleep|After|AfterFunc|Tick|NewTimer|NewTicker)$
+          msg: use the injected clock (internal/clock)
+        - pattern: ^os\.(Getenv|LookupEnv|Environ|UserHomeDir|Getuid|Getgid|Hostname)$
+          msg: configuration is read in cmd/sandboxed_agent and injected
+        - pattern: ^fmt\.Print(f|ln)?$
+          msg: writers are injected; use fmt.Fprint* on an io.Writer
+        - pattern: ^log\.
+          msg: writers are injected; no global logger
+        - pattern: ^\w+\.Skip(f|Now)?$
+          msg: a unit test runs or fails; only *_integration_test.go may skip (when Docker is absent)
+
+    # The architecture guard, restated as a test in internal/archtest.
+    #
+    #   core     events, harness, bundle/plan, runs/spec, paths, clock:
+    #            stdlib + other core, no side-effect stdlib
+    #   adapter  every other internal package (membership by exclusion, so a
+    #            new package is guarded the moment it exists): core and
+    #            third-party, never another adapter
+    #   driver   the run executor composes adapters, so it has no rule
+    #            (depguard rejects an empty rule; "unconstrained" is spelled
+    #            by having none)
+    #   root     cmd/, tools/: everything
+    #
+    # list-mode strict: an import must be allowed and a longer allow prefix
+    # beats a deny prefix. lax: only deny prefixes are blocked.
+    depguard:
+      rules:
+        core:
+          list-mode: strict
+          files:
+            - "**/internal/events/**"
+            - "**/internal/harness/**"
+            - "**/internal/bundle/plan/**"
+            - "**/internal/runs/spec/**"
+            - "**/internal/paths/**"
+            - "**/internal/clock/**"
+            - "!$test"
+          allow:
+            - $gostd
+            - github.com/lezhnev74/sandboxed_agent/internal/events
+            - github.com/lezhnev74/sandboxed_agent/internal/harness
+            - github.com/lezhnev74/sandboxed_agent/internal/bundle/plan
+            - github.com/lezhnev74/sandboxed_agent/internal/runs/spec
+            - github.com/lezhnev74/sandboxed_agent/internal/paths
+            - github.com/lezhnev74/sandboxed_agent/internal/clock
+          deny:
+            - pkg: os/exec
+              desc: core is pure; exec belongs in an adapter's *_exec.go
+            - pkg: os/signal
+              desc: core is pure; signals are handled by adapters
+            - pkg: net
+              desc: core is pure; no network
+            - pkg: syscall
+              desc: core is pure; no syscalls
+            - pkg: plugin
+              desc: core is pure
+            - pkg: unsafe
+              desc: core is pure
+
+        adapters:
+          list-mode: lax
+          files:
+            - "**/internal/**"
+            - "!**/internal/events/**"
+            - "!**/internal/harness/**"
+            - "!**/internal/bundle/plan/**"
+            - "!**/internal/runs/spec/**"
+            - "!**/internal/paths/**"
+            - "!**/internal/clock/**"
+            - "!**/internal/driver/**"
+            - "!**/internal/archtest/**"
+            - "!$test"
+          allow:
+            - github.com/lezhnev74/sandboxed_agent/internal/events
+            - github.com/lezhnev74/sandboxed_agent/internal/harness
+            - github.com/lezhnev74/sandboxed_agent/internal/bundle/plan
+            - github.com/lezhnev74/sandboxed_agent/internal/runs/spec
+            - github.com/lezhnev74/sandboxed_agent/internal/paths
+            - github.com/lezhnev74/sandboxed_agent/internal/clock
+          deny:
+            - pkg: github.com/lezhnev74/sandboxed_agent/internal
+              desc: adapters are peers; only cmd/sandboxed_agent and internal/driver compose them
+
+        # Decisions live in pure, table-tested functions; only *_exec.go runs
+        # processes. Integration tests, tools/ and archtest run go/docker
+        # themselves.
+        exec:
+          list-mode: lax
+          files:
+            - "**/*.go"
+            - "!**/*_exec.go"
+            - "!**/*_integration_test.go"
+            - "!**/tools/**"
+            - "!**/internal/archtest/**"
+          deny:
+            - pkg: os/exec
+              desc: only *_exec.go files may import os/exec
+
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - std-error-handling
+    rules:
+      # Tests may be long and repetitive, and their errors never escape.
+      - path: _test\.go
+        linters:
+          - dupl
+          - err113
+          - funlen
+          - gocognit
+          - goconst
+          - gocyclo
+          - gosec
+          - wrapcheck
+      # The clock package is the one place that reads real time.
+      - path: internal/clock/
+        text: use the injected clock
+        linters:
+          - forbidigo
+      # The composition root reads the environment and injects it.
+      - path: ^cmd/
+        text: configuration is read in cmd/sandboxed_agent
+        linters:
+          - forbidigo
+      # Integration tests skip when Docker is absent.
+      - path: _integration_test\.go
+        text: a unit test runs or fails
+        linters:
+          - forbidigo
+      # tools/ are self-contained CLIs: sentinel errors and unwrapped errors
+      # are the idiom there, and their file paths come from flags.
+      - path: ^tools/
+        linters:
+          - err113
+          - gosec
+          - wrapcheck
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/lezhnev74/sandboxed_agent
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  # Off by default, which hides gocyclo behind gocognit: both report on the
+  # function's declaration line and only the first would survive.
+  uniq-by-line: false

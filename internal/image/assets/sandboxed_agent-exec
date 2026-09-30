@@ -1,0 +1,11 @@
+#!/bin/sh
+# sandboxed_agent-exec PGID_FILE CMD [ARGS...]: run CMD as the leader of a new
+# session and process group, and write that group's id to PGID_FILE first.
+# Killing a `docker exec` client leaves its process running in the box, so
+# the driver kills the harness by this group instead.
+set -eu
+if [ "$#" -lt 2 ]; then
+  echo "usage: sandboxed_agent-exec PGID_FILE CMD [ARGS...]" >&2
+  exit 2
+fi
+exec setsid -w sh -c 'echo "$$" > "$0" && exec "$@"' "$@"

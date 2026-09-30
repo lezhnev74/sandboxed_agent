@@ -1,0 +1,4 @@
+{"type":"system","subtype":"init","model":"claude-haiku-4-5","claude_code_version":"2.1.284","session_id":"s1"}
+{"type":"assistant","message":{"model":"claude-haiku-4-5","role":"assistant","content":[{"type":"tool_use","id":"toolu_1","name":"Bash","input":{"command":"ls","description":"List files"}}],"usage":{"input_tokens":3,"output_tokens":4}},"session_id":"s1"}
+{"type":"user","message":{"role":"user","content":[{"tool_use_id":"toolu_1","type":"tool_result","content":"a\nb"}]},"session_id":"s1"}
+{"type":"result","subtype":"error_max_turns","is_error":true,"api_error_status":null,"num_turns":2,"stop_reason":"tool_use","total_cost_usd":0.0034,"usage":{"input_tokens":200,"cache_creation_input_tokens":0,"cache_read_input_tokens":100,"output_tokens":25},"session_id":"s1"}

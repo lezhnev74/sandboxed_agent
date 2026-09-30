@@ -1,0 +1,38 @@
+{
+  "claude": {
+    "name": "claude",
+    "command": ["claude", "-p"],
+    "prompt": "stdin",
+    "model_flag": "--model",
+    "dir_flag": "--add-dir",
+    "auto_approve": ["--dangerously-skip-permissions"],
+    "output": ["--output-format", "stream-json", "--verbose"],
+    "bare_args": ["--setting-sources", "user", "--strict-mcp-config"],
+    "config_env": "CLAUDE_CONFIG_DIR",
+    "interactive": ["claude", "--dangerously-skip-permissions"],
+    "env": {
+      "CLAUDE_CODE_DISABLE_CLAUDE_MDS": "1",
+      "CLAUDE_CODE_DISABLE_AUTO_MEMORY": "1",
+      "CLAUDE_CODE_DISABLE_BUNDLED_SKILLS": "1",
+      "DISABLE_AUTOUPDATER": "1",
+      "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+    }
+  },
+  "opencode": {
+    "name": "opencode",
+    "command": ["opencode", "run"],
+    "prompt": "arg",
+    "model_flag": "-m",
+    "variant_flag": "--variant",
+    "auto_approve": ["--auto"],
+    "output": ["--format", "json"],
+    "config_env": "OPENCODE_CONFIG_DIR",
+    "interactive": ["opencode"],
+    "env": {
+      "OPENCODE_DISABLE_PROJECT_CONFIG": "1",
+      "OPENCODE_DISABLE_CLAUDE_CODE": "1",
+      "OPENCODE_DISABLE_EXTERNAL_SKILLS": "1",
+      "OPENCODE_DISABLE_AUTOUPDATE": "1"
+    }
+  }
+}

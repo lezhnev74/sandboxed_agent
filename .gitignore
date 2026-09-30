@@ -1,0 +1,6 @@
+.idea/
+bin/
+.build/
+coverage.out
+coverage.html
+.sandboxed_agent/
